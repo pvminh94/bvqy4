@@ -3,7 +3,7 @@ FROM node:20-alpine AS deps
 WORKDIR /app
 RUN apk add --no-cache libc6-compat
 COPY package*.json ./
-RUN npm ci --maxsockets=1 && npm cache clean --force
+RUN npm ci --legacy-peer-deps --maxsockets=1 && npm cache clean --force
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
@@ -42,21 +42,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/next.config.ts ./
 COPY --from=builder /app/drizzle.config.json ./
-COPY --from=builder /app/src ./src
-
-# Install only production deps for standalone mode
-RUN npm ci --only=production --maxsockets=1 2>/dev/null || true
-
-# Entrypoint: runs app with auto seed on first start
-RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
-    echo 'set -e' >> /app/entrypoint.sh && \
-    echo 'echo "========================================="' >> /app/entrypoint.sh && \
-    echo 'echo "  MedCare Hospital - Starting up..."' >> /app/entrypoint.sh && \
-    echo 'echo "========================================="' >> /app/entrypoint.sh && \
-    echo '' >> /app/entrypoint.sh && \
-    echo 'echo "Waiting for database..."' >> /app/entrypoint.sh && \
-    echo 'node server.js' >> /app/entrypoint.sh && \
-    chmod +x /app/entrypoint.sh
+COPY --from=builder /app/src/lib/seed.ts ./src/lib/seed.ts
+COPY --from=builder /app/src/db ./src/db
 
 USER nextjs
 
@@ -67,4 +54,4 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=5 \
   CMD wget -qO- http://localhost:3000/api/health || exit 1
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["node", "server.js"]
