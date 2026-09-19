@@ -19,6 +19,9 @@ const appointmentSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const body = await req.json();
 
@@ -75,6 +78,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const allAppointments = await db
       .select()

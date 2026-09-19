@@ -2,15 +2,19 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { verifyToken } from "@/lib/auth";
 
-const adminPaths = ["/quan-tri"];
-const apiAdminPaths = ["/api/admin"];
+const publicAdminPaths = ["/quan-tri/dang-nhap", "/api/admin/auth/login", "/api/admin/auth/logout"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Skip public paths
+  if (publicAdminPaths.some((p) => pathname.startsWith(p))) {
+    return NextResponse.next();
+  }
+
   // Check if path needs admin auth
-  const isAdminPage = adminPaths.some((p) => pathname.startsWith(p));
-  const isAdminApi = apiAdminPaths.some((p) => pathname.startsWith(p));
+  const isAdminPage = pathname.startsWith("/quan-tri");
+  const isAdminApi = pathname.startsWith("/api/admin");
 
   if (isAdminPage || isAdminApi) {
     const token = request.cookies.get("admin_token")?.value;

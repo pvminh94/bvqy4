@@ -22,6 +22,9 @@ export const metadata: Metadata = {
 };
 
 export default async function ServicesPage() {
+  if (!db) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-gray-500">Không thể kết nối cơ sở dữ liệu</p></div>;
+  }
   const [serviceList, deptList] = await Promise.all([
     db.select().from(services).where(eq(services.isActive, true)),
     db.select().from(departments).where(eq(departments.isActive, true)),

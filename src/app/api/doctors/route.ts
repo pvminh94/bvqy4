@@ -5,6 +5,9 @@ import { eq } from "drizzle-orm";
 import { cacheGet, cacheSet, CACHE_KEYS } from "@/lib/redis";
 
 export async function GET() {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const cached = await cacheGet<typeof doctors.$inferSelect[]>(
       CACHE_KEYS.doctors

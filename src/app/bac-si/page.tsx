@@ -19,6 +19,7 @@ export const metadata: Metadata = {
 };
 
 async function getDoctors() {
+  if (!db) return [];
   const cached = await cacheGet<Doctor[]>(CACHE_KEYS.doctors);
   if (cached) return cached;
 
@@ -32,6 +33,7 @@ async function getDoctors() {
 }
 
 async function getDepartments() {
+  if (!db) return [];
   const cached = await cacheGet<{ id: number; name: string }[]>(
     CACHE_KEYS.departments
   );

@@ -4,6 +4,9 @@ import { testimonials } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET() {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const testimonialList = await db.select().from(testimonials).orderBy(testimonials.createdAt);
     return NextResponse.json({ success: true, testimonials: testimonialList });
@@ -14,6 +17,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const body = await req.json();
     const { patientName, rating, content, treatmentType, isApproved, isFeatured } = body;
@@ -39,6 +45,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const body = await req.json();
     const { id, isApproved, isFeatured } = body;
@@ -56,6 +65,9 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");

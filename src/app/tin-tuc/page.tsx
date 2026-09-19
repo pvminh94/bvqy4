@@ -27,6 +27,7 @@ const categoryColors: Record<string, string> = {
 };
 
 async function getNews() {
+  if (!db) return [];
   const cached = await cacheGet<News[]>(CACHE_KEYS.news);
   if (cached) return cached;
 

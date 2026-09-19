@@ -12,6 +12,9 @@ const contactSchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const body = await req.json();
     const parsed = contactSchema.safeParse(body);
@@ -34,6 +37,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET() {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const messages = await db.select().from(contactMessages).orderBy(contactMessages.createdAt);
     return NextResponse.json({ success: true, messages });

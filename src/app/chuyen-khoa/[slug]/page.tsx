@@ -17,6 +17,7 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
+  if (!db) return { title: "Chuyên khoa không tìm thấy" };
   const [dept] = await db
     .select()
     .from(departments)
@@ -32,6 +33,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function DepartmentDetailPage({ params }: Props) {
   const { slug } = await params;
+
+  if (!db) notFound();
 
   const [dept] = await db
     .select()

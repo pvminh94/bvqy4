@@ -4,6 +4,9 @@ import { news } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET() {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const newsList = await db.select().from(news).orderBy(news.createdAt);
     return NextResponse.json({ success: true, news: newsList });
@@ -14,6 +17,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const body = await req.json();
     const { title, slug, excerpt, content, imageUrl, category, author, isPublished } = body;

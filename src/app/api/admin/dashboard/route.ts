@@ -4,6 +4,9 @@ import { appointments, doctors, departments, news, contactMessages, patients } f
 import { eq, sql, and, gte } from "drizzle-orm";
 
 export async function GET() {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);

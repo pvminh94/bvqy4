@@ -6,6 +6,9 @@ import { comparePassword, signToken } from "@/lib/auth";
 import { cookies } from "next/headers";
 
 export async function POST(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const { username, password } = await req.json();
     

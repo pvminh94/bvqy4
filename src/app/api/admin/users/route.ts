@@ -5,6 +5,9 @@ import { eq } from "drizzle-orm";
 import { hashPassword } from "@/lib/auth";
 
 export async function GET() {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const userList = await db
       .select({
@@ -28,6 +31,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const body = await req.json();
     const { username, email, password, fullName, role } = body;
@@ -66,6 +72,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const body = await req.json();
     const { id, username, email, fullName, role, password, isActive } = body;
@@ -93,6 +102,9 @@ export async function PUT(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");

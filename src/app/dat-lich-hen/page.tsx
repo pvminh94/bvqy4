@@ -2,7 +2,20 @@ import type { Metadata } from "next";
 import { db } from "@/db";
 import { departments, doctors } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import { Calendar, Clock, Phone, MapPin, CheckCircle2 } from "lucide-react";
+import { Calendar, Clock, Phone, MapPin, CheckCircle2, Database } from "lucide-react";
+
+function DatabaseError() {
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center bg-white rounded-3xl shadow-sm border border-gray-100 p-12 max-w-md">
+        <Database className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Không thể kết nối</h2>
+        <p className="text-gray-500">Vui lòng thử lại sau.</p>
+      </div>
+    </div>
+  );
+}
+
 import AppointmentForm from "@/components/appointment/AppointmentForm";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +34,16 @@ const benefits = [
 ];
 
 export default async function AppointmentPage() {
+  if (!db) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-gray-500 text-lg">Dịch vụ tạm thời không khả dụng.</p>
+          <p className="text-gray-400 mt-2">Vui lòng gọi hotline <a href="tel:1800599920" className="text-blue-600 font-bold">1800 599 920</a> để đặt lịch hẹn.</p>
+        </div>
+      </div>
+    );
+  }
   const [deptList, doctorList] = await Promise.all([
     db.select().from(departments).where(eq(departments.isActive, true)),
     db.select().from(doctors).where(eq(doctors.isActive, true)),

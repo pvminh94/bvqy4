@@ -4,6 +4,9 @@ import { banners } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET() {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const bannerList = await db.select().from(banners).orderBy(banners.order);
     return NextResponse.json({ success: true, banners: bannerList });
@@ -14,6 +17,9 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const body = await req.json();
     const { title, subtitle, imageUrl, linkUrl, position, order } = body;
@@ -35,6 +41,9 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
+  if (!db) {
+    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
+  }
   try {
     const body = await req.json();
     const { id, title, subtitle, imageUrl, linkUrl, isActive, order } = body;
