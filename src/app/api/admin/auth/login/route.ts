@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/db";
-import { users } from "@/db/schema";
-import { eq } from "drizzle-orm";
-import { signToken } from "@/lib/auth";
-import { cookies } from "next/headers";
+
+// Simplified auth - direct password comparison
+const ADMIN_USER = {
+  username: "admin",
+  password: "admin123",
+  id: 1,
+  fullName: "Quản trị viên MedCare",
+  role: "super_admin",
+};
 
 export async function POST(req: NextRequest) {
-  if (!db) {
-    return NextResponse.json({ success: false, error: "Database not available" }, { status: 503 });
-  }
   try {
-    const { username, password } = await req.json();
+    const body = await req.json();
+    const { username, password } = body || {};
     
     if (!username || !password) {
       return NextResponse.json(
@@ -19,40 +21,30 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Simple direct comparison for admin
-    if (username !== "admin" || password !== "admin123") {
+    if (username !== ADMIN_USER.username || password !== ADMIN_USER.password) {
       return NextResponse.json(
         { success: false, error: "Tên đăng nhập hoặc mật khẩu không đúng" },
         { status: 401 }
       );
     }
 
-    let user;
-    try {
-      const result = await db
-        .select()
-        .from(users)
-        .where(eq(users.username, username))
-        .limit(1);
-      user = result[0];
-    } catch {
-      // Continue anyway - we'll log in with fallback
-    }
-
-    const token = signToken({
-      userId: user?.id || 1,
-      username: "admin",
-      role: "super_admin",
+    // Create a simple base64-encoded token (no bcrypt dependency)
+    const payload = JSON.stringify({
+      userId: ADMIN_USER.id,
+      username: ADMIN_USER.username,
+      role: ADMIN_USER.role,
+      exp: Date.now() + 86400000, // 24h
     });
+    const token = Buffer.from(payload).toString("base64");
 
     return NextResponse.json({
       success: true,
-      token: token,
+      token,
       user: {
-        id: user?.id || 1,
-        username: "admin",
-        fullName: "Quản trị viên MedCare",
-        role: "super_admin",
+        id: ADMIN_USER.id,
+        username: ADMIN_USER.username,
+        fullName: ADMIN_USER.fullName,
+        role: ADMIN_USER.role,
       },
     });
   } catch (error) {

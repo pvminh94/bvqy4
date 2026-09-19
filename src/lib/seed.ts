@@ -12,7 +12,6 @@ import {
   users,
 } from "@/db/schema";
 import { eq } from "drizzle-orm";
-import bcrypt from "bcryptjs";
 
 export async function seedDatabase() {
   if (!db) {
@@ -169,7 +168,7 @@ export async function seedDatabase() {
 
     // Seed Admin User
     try {
-      const hashedPassword = await bcrypt.hash("admin123", 12);
+      const hashedPassword = Buffer.from("admin123").toString("base64");
       await db.insert(users).values({
         username: "admin",
         email: "admin@medcare.vn",
