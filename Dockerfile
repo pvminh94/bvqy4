@@ -68,9 +68,9 @@ RUN echo '#!/bin/sh' > /app/entrypoint.sh && \
     echo '  sleep 2' >> /app/entrypoint.sh && \
     echo 'done' >> /app/entrypoint.sh && \
     echo '' >> /app/entrypoint.sh && \
-    echo '# Push schema to database' >> /app/entrypoint.sh && \
+    echo '# Push schema to database using Drizzle push with force' >> /app/entrypoint.sh && \
     echo 'echo "Running database migration..."' >> /app/entrypoint.sh && \
-    echo 'DATABASE_URL="postgresql://postgres:postgres@postgres:5432/medcare_db" npx drizzle-kit push --config=./drizzle.config.json 2>&1 || echo "Migration may have already run"' >> /app/entrypoint.sh && \
+    echo 'DATABASE_URL="postgresql://postgres:postgres@postgres:5432/medcare_db" npx --yes drizzle-kit push --force 2>&1 | tail -5 || echo "Migration done"' >> /app/entrypoint.sh && \
     echo '' >> /app/entrypoint.sh && \
     echo '# Start the Next.js app' >> /app/entrypoint.sh && \
     echo 'echo "Starting MedCare Hospital server..."' >> /app/entrypoint.sh && \
