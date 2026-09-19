@@ -50,17 +50,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/auth/me")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) setUser(data.user);
-        else router.push("/quan-tri/dang-nhap");
-      })
-      .catch(() => router.push("/quan-tri/dang-nhap"));
+    // Check token from localStorage
+    const token = localStorage.getItem("admin_token");
+    if (!token) {
+      router.push("/quan-tri/dang-nhap");
+      return;
+    }
+    // Get user info from localStorage
+    try {
+      const userData = localStorage.getItem("admin_user");
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    } catch {}
   }, [router]);
 
-  const handleLogout = async () => {
-    await fetch("/api/admin/auth/logout", { method: "POST" });
+  const handleLogout = () => {
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_user");
     router.push("/quan-tri/dang-nhap");
   };
 

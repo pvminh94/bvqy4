@@ -15,17 +15,12 @@ export default function AdminLoginPage() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/admin/auth/me");
-        if (res.ok) {
-          router.replace("/quan-tri");
-          return;
-        }
-      } catch {}
-      setChecking(false);
+    const token = localStorage.getItem("admin_token");
+    if (token) {
+      router.replace("/quan-tri");
+      return;
     }
-    checkAuth();
+    setChecking(false);
   }, [router]);
 
   if (checking) {
@@ -49,6 +44,8 @@ export default function AdminLoginPage() {
       });
       const data = await res.json();
       if (data.success) {
+        localStorage.setItem("admin_token", data.token);
+        localStorage.setItem("admin_user", JSON.stringify(data.user));
         router.push("/quan-tri");
       } else {
         setError(data.error || "Đăng nhập thất bại");
@@ -73,7 +70,6 @@ export default function AdminLoginPage() {
         className="relative w-full max-w-md"
       >
         <div className="bg-gray-900/80 backdrop-blur-xl border border-gray-800 rounded-3xl p-8 shadow-2xl">
-          {/* Logo */}
           <div className="text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg">
@@ -149,7 +145,10 @@ export default function AdminLoginPage() {
               className="w-full py-3 bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-cyan-600 transition-all duration-300 disabled:opacity-50 shadow-lg shadow-blue-500/20 flex items-center justify-center gap-2"
             >
               {loading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Đang xử lý...
+                </>
               ) : (
                 "Đăng nhập"
               )}
